@@ -5,14 +5,17 @@ renglones en un fichero.txt
 
 además que no pregunta al usuario por un
 fichero, sino que de no encontrarlo en
-el directorio actual crea un vacio...
+el directorio actual crea uno vacio...
 
 basicamente el programa es un gestor de
-listas que aloja en un fichero.txt
+listas que se aloja su resultado en un
+fichero.txt
 
 pero si ingreso juan carlos no puedo
 hallar a juan carlos por 'carlos'
-solamente entonces necesito distribuir
+solamente.
+
+entonces necesito distribuir
 el contenido del renglon en variables
 diferentes y eventualmente listarlas en
 pantalla si coinciden...
@@ -29,14 +32,23 @@ nro de documento, o apellidos...
 añadiría email, domicilio, cumpleaños
 y hasta una nota personal que ayuda de
 referencia del contacto como
-'juan el pintor recomendado por julio'
+'el pintor recomendado por julio'
  
 y tampoco es necesario un id absoluto
 porque uno no tiene ni 30 contactos que
-quiera recordar o usar
+necesita recordar para usar
 
 en el mejor de los casos que la aplicación
 permita imprimir en un fichero en formato
-sqlite3 y que a partir de este decida
-pasarlo a formato cvs o json.
+sqlite3 y que a partir de este fichero
+el usuario decida pasarlo a formato cvs
+o json.
 
+considero que un programa simple
+y efectivo es facil de interpretar,
+facil de usar y facil de integrar con
+otros programas linux.
+
+un usuario linux conoce otros programas
+y hasta puede escribir el suyo o mejorar
+uno publico para su uso particular.
