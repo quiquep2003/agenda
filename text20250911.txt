@@ -1,0 +1,25 @@
+un gestor de listas, lo he editado
+para usarlo con una lista de peliculas
+para hallar su directorio... si
+preguntan como compuse esa lista...
+ la compuse con bash y totalcommander.
+
+tambien si mi biblioteca estuviese
+listada funcionaria... y devolvería la
+ ubbicación del libro, sea un esrante,
+ una caja, el problema que presenta es
+ el de que los libros pueden prestarse,
+ perderse, etc entonces debería poder
+ 'modificar su ubicacion'.
+
+otra odea interesante es que los temas
+de los libros podrías ayudar si se los
+ incorporase... pero serían tres campos
+ y ya parecería una base de datos...
+ mas bien una tabla!
+
+solo deberia cambiar el titulo por
+registro de... y junto con el fichero
+a trabajar que se inicie como argumentos
+de linea o de manera interactiva.
+
