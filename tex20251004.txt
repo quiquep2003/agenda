@@ -1,0 +1,21 @@
+ayudado por la ia, incorporé la posibilidad
+de buscar por cada nombre que contenga la
+linea de texto.
+
+entonces podemos ir afinando la busqueda
+tratandose de contactos nonpareciera tener
+mucho sentido pero recordemos que podemos
+editar el codigo facilmemte para que
+gestione otras cosas... como dije en una
+oportunidad anterior:
+ejemplos listas de libros y su ubicacion,
+lista de herramientas y su asignacion a
+otra persona, listas de contactos
+logicamente, listas de materiales y precios,
+es como un diccionario.
+
+puede que el segundo menú sea prescindible
+porque podría haber buscado...
+nombre a buscar: j lu
+para que directamente aparezca juan luis!
+de momwnto estoy cansado!
