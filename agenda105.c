@@ -47,10 +47,13 @@ int main(int argc, char *argv[])
 					printf("Salimos!\n");
 					break;
 				case 1:
-					buscar_add(c, &r);
+					if(r<1) printf("lista vacia\n");
+					else if(r==1) mistrar(c, &r);
+						else buscar_add(c, &r);
 					break;
 				case 2:
-					mostrar(c, &r);
+					if(r<1) printf("lista vacia\n");
+					else mostrar(c, &r);
 					break;
 				case 3:
 					ingresar(&r);
@@ -59,7 +62,8 @@ int main(int argc, char *argv[])
 					c=cargar(c, &r);
 					break;
 				case 4:
-					borrar(c, &r);
+					if(r<1) printf("lista vacia\n");
+					else borrar(c, &r);
 					break;
 			}
 		} while(op!=0);
@@ -307,17 +311,24 @@ void borrar(char **c, int *r)
 
 	mostrar(c, r);
 
-	do
+	if(*r==1)
 	{
-		printf("Ingrese el id del contacto a borrar: ");
-		if(scanf("%d", &p)!=1) p=0;
-		clean_stdin();
-	}while(p<0 || p>*r);
+		p=1;
+		printf("registro borrado\n");
+	}
+	else
+	{
+		do
+		{
+			printf("Ingrese el id del contacto a borrar: ");
+			if(scanf("%d", &p)!=1) p=0;
+			clean_stdin();
+		}while(p<0 || p>*r);
 
-	if(p!=0)
-		guardar(c, p, r);
+		if(p!=0) guardar(c, p, r);
 
-	c=cargar(c, r);
+		if(*r>1) c=cargar(c, r);
+	}
 }
 
 void ordenar(char **c, int *r)
