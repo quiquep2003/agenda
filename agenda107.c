@@ -5,12 +5,15 @@
 
 #define ol 120
 #define fichero "gnd2"
+#define BUFFER 256
+#define MAX_CAMPOS 10
+#define MAX_REGISTROS 1000
 
 void clean_stdin(void);
 char cmp(char *x, char *y);
 int nlineas(void);
 void mostrar(char **, int *);
-void split(char *, char [][ol], int *);
+void parsear_campos(char *, char [][ol], int *);
 int cmpeq(char t[], char s[]);
 int menu(void);
 void ingresar(int *r);
@@ -49,7 +52,7 @@ int main(int argc, char *argv[])
 				case 1:
 					if(r<1) printf("lista vacia\n");
 					else if(r==1) mostrar(c, &r);
-						else buscar_add(c, &r);
+ 						else buscar_add(c, &r);
 					break;
 				case 2:
 					if(r<1) printf("lista vacia\n");
@@ -70,20 +73,8 @@ int main(int argc, char *argv[])
 	}
 	else
 	{
-		if(argc==2 && argv[1][0]=='-' && argv[1][1]=='l')
-			mostrar(c, &r);
-
-		if(argc==2 && argv[1][0]=='-' && argv[1][1]=='q')
-			buscar_add(c, &r);
-
-		if(argc>1 && !(argc==2 && argv[1][0]=='-' && (argv[1][1]=='l' || argv[1][1]=='q')))
-			buscar_args(argc, argv, c, &r);
-
-		if(argv[1][0]=='-' && argv[1][1]!='l' && argv[1][1]!='q')
-		{
-			printf("ayuda: ");
-			printf(" -l listar, -q buscar o bien token1 token2 token3, etc\n");
-		}
+    	if(argc>1)
+        	buscar_args(argc, argv, c, &r);
 	}
 
 	for(i=0;i<r;i++)
@@ -158,32 +149,26 @@ void mostrar(char **c, int *r)
 		printf("%d %s", i+1, c[i]);
 }
 
-void split(char *a, char b[][ol], int *k)
+void parsear_campos(char *linea, char campos[][ol], int *cantidad)
 {
-	int i=0, j=0;
-	*k=0;
+    int i=0, j=0;
+    *cantidad=0;
 
-	while(a[i]!='\0')
+    while(linea[i]!='\0' && *cantidad < ol)
 	{
-		if(a[i]!=' ')
-		{
-			b[*k][j]=a[i];
-			j++;
-		}
-		else
-		{
-			b[*k][j]='\0';
-			j=0;
-			*k+=1;
-		}
-		i++;
-	}
-
-	if(j>0)
-	{
-		b[*k][j]='\0';
-		*k+=1;
-	}
+        if(linea[i]=='|' || linea[i]=='\n') {
+            campos[*cantidad][j]='\0';
+            if(j>0) (*cantidad)++;
+            j=0;
+        } else {
+            if(j < ol-1) campos[*cantidad][j++]=linea[i];
+        }
+        i++;
+    }
+    if(j>0) {
+        campos[*cantidad][j]='\0';
+        (*cantidad)++;
+    }
 }
 
 void buscar(char **c, int *r)
@@ -200,7 +185,7 @@ void buscar(char **c, int *r)
 
 	for(i=0;i<*r;i++)
 	{
-		split(c[i], list, p);
+		parsear_campos(c[i], list, p);
 
 		for(k=0;k<*p;k++)
 		{
@@ -268,41 +253,52 @@ int menu(void)
 	return op;
 }
 
+
 void ingresar(int *r)
 {
-	int m=0;
-	char b[ol];
-	FILE *fp;
+    char nombre[256];
+    char telefono[256];
+    char linea[512];
+    int m = 0;
+    FILE *fp;
 
-	fp=fopen(fichero, "a+");
-	if(!fp)
-	{
-		perror("fopen");
-		return;
-	}
+    fp = fopen(fichero, "a+");
+    if(!fp) {
+        perror("fopen");
+        return;
+    }
 
-	do
-	{
-		if(m>0) printf("Tamaño inadmisible!\n");
+    do {
+        if(m > 0) 
+            printf("Tamaño inadmisible (mínimo 10, máximo %d)\n", ol);
 
-		printf("Ingrese el nombre, un espacio y\n");
-		printf("el telefono de contacto con guiones: ");
+        // Pedir nombre
+        printf("Ingrese el nombre: ");
+        if(!fgets(nombre, sizeof nombre, stdin)) {
+            fclose(fp);
+            return;
+        }
+        nombre[strcspn(nombre, "\n")] = '\0';
 
-		if(!fgets(b, sizeof b, stdin))
-		{
-			fclose(fp);
-			return;
-		}
+        // Pedir teléfono
+        printf("Ingrese el teléfono: ");
+        if(!fgets(telefono, sizeof telefono, stdin)) {
+            fclose(fp);
+            return;
+        }
+        telefono[strcspn(telefono, "\n")] = '\0';
 
-		b[strcspn(b, "\n")]='\0';
-		strcat(b, "\n");
-		m=strlen(b)+1;
-	}while(m<10 || m>ol);
+        // Armar la línea con separador '|'
+        snprintf(linea, sizeof linea, "%s|%s\n", nombre, telefono);
 
-	fputs(b, fp);
-	fclose(fp);
+        m = strlen(linea) + 1;
+    } while(m < 10 || m > ol);
 
-	*r+=1;
+    fputs(linea, fp);
+    fclose(fp);
+
+    *r += 1;
+    printf("Registro guardado exitosamente.\n");
 }
 
 void borrar(char **c, int *r)
@@ -476,14 +472,6 @@ void afinar(char **c, int *indices, int temp_count)
 	for(int i=0;i<temp_count;i++)
 	cur[i]=indices[i];
 
-	/* Si ya sólo queda uno, imprimirlo y salir inmediatamente */
-	if(cur_count == 1)
-	{
-		printf("%d %s", cur[0]+1, c[cur[0]]);
-		free(cur);
-		return;
-	}
-
 	while(op!=0 && cur_count>0)
 	{
 		do{
@@ -573,43 +561,41 @@ void buscar_add(char **c, int *r)
 	free(indices);
 }
 
+// REFACTORIZADO: buscar_args()
+// Busca múltiples términos posicionalmente en campos parseados
+// Usa contains_ci() para búsqueda substring case-insensitive
 void buscar_args(int argc, char *argv[], char **c, int *r)
 {
-	int terms = argc - 1;
-	char **t = malloc(terms * sizeof(char *));
-	for(int i=0;i<terms;i++)
-		t[i] = argv[i+1];
+    int i, j, total_campos;
+    char campos[MAX_CAMPOS][ol];
+    char copia[ol];
+    int indices[*r];
+    int temp_count = 0;
+    int coincide;
 
-	char words[ol][ol];
-	int wcount;
+    for (i = 0; i < *r; i++) {
+        strcpy(copia, c[i]);
+        parsear_campos(copia, campos, &total_campos);
 
-	for(int i=0;i<*r;i++)
-	{
-		split(c[i], words, &wcount);
-		if(wcount < terms) continue;
+        coincide = 1;
+        for (j = 1; j < argc && j <= total_campos; j++) {
+            if (!contains_ci(campos[j-1], argv[j])) {
+                coincide = 0;
+                break;
+            }
+        }
 
-		int ok = 1;
-		for(int j=0;j<terms && ok;j++)
-		{
-			const char *hay = words[j];
-			const char *needle = t[j];
-			size_t nl = strlen(needle);
-			if(nl == 0) continue;
+        if (coincide) {
+            indices[temp_count++] = i;
+        }
+    }
 
-			for(size_t k=0;k<nl;k++)
-			{
-				if(!hay[k] || tolower((unsigned char)hay[k]) != tolower((unsigned char)needle[k]))
-				{
-					ok = 0;
-					break;
-				}
-			}
-		}
-
-		if(ok)
-			printf("%d %s", i+1, c[i]);
-	}
-
-	free(t);
+    // Mostrar resultados
+    if (temp_count == 0) {
+        printf("No se encontraron resultados.\n");
+    } else {
+        for (i = 0; i < temp_count; i++) {
+            printf("%d %s", indices[i]+1, c[indices[i]]);
+        }
+    }
 }
-
